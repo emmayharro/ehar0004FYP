@@ -1,4 +1,5 @@
 % linewidth comparing with & without my phase comp
+% filters implemented with pass/stop of 0.75/1 Hz across all linewidths
 close all; clear all; clc;
 
 Laser = [1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7, 8e7, 1e8];

@@ -107,7 +107,7 @@ for linewidth = [1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7
         Ey=Ey./sqrt(mean(abs(Ey).^2))+dc_off; %add DC offset to y-pol
         [Ex,Ey] = impair_phaseNoise(Ex,Ey,f_samp.*1e9,linewidth);
         [Ex,Ey] = impair_freqOffset(Ex,Ey,f_samp,f_off); %add a frequency offset
-        %[Ex,Ey] = impair_OSNR(Ex,Ey,f_samp,OSNR); %load in optical noise
+        [Ex,Ey] = impair_OSNR(Ex,Ey,f_samp,OSNR); %load in optical noise
         
         % figure(2)
         % plot(linspace(-ADCrate/2,ADCrate/2,length(Ex)),20*log10(abs(fftshift(fft(Ex)))))
@@ -133,8 +133,8 @@ for linewidth = [1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7
         %% remove phase noise
         %employ filter to remove central optical tone centred at 0 before shifting
         % sub-band
-        HPF = dsp.HighpassFilter('SampleRate', f_samp, 'StopbandFrequency', 0.75,'PassbandFrequency', 1,'StopbandAttenuation', 80);
-        LPF = dsp.LowpassFilter('SampleRate', f_samp, 'StopbandFrequency', 1, 'PassbandFrequency', 0.75, 'StopbandAttenuation', 80);
+        HPF = dsp.HighpassFilter('SampleRate', f_samp, 'StopbandFrequency', 0.25,'PassbandFrequency', 1.25,'StopbandAttenuation', 80);
+        LPF = dsp.LowpassFilter('SampleRate', f_samp, 'StopbandFrequency', 1.25, 'PassbandFrequency', 0.25, 'StopbandAttenuation', 80);
         % fvtool(LPF)
         ExLP = LPF(Ex); %stored as complex a+ib
         EyLP = LPF(Ey);
@@ -147,12 +147,13 @@ for linewidth = [1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7
         Ey = HPF(Ey);
         [phaseyHP, idealyHP] = cart2pol(real(Ey), imag(Ey));
         
-        % figure(50)
-        % hold on
-        % plot(f,20*log10(abs(fftshift(fft(Ex)))))
-        % plot(f,20*log10(abs(fftshift(fft(ExLP)))))
-        % hold off
-        
+%         if (ii == 1)
+%         figure(50)
+%         hold on
+%         plot(f,20*log10(abs(fftshift(fft(Ex)))))
+%         plot(f,20*log10(abs(fftshift(fft(ExLP)))))
+%         hold off
+%         end 
         % process ExLP/EyLP
         phaseEx = phaseHP-phase;
         [A,B] = pol2cart(phaseEx, idealHP);
