@@ -37,7 +37,9 @@ Qw = [2.4175, 2.4243, 2.4195, 2.4188, 2.4213, 2.4128, 2.4151, 2.4125, 2.4044, 2.
 
 % Results using both algorithms
 BERboth = [0.00015263, 0.0014559, 0.0034988];
-Qboth = [24.2639, 24.2148, 24.1867, 24.1379, 23.8623, 23.7044, 23.5841, 22.9936, 21.5793, 20.4413, 19.842, 17.6293, 14.4173, 12.4406, 11.4519];
+Qboth4 = [24.2639, 24.2148, 24.1867, 24.1379, 23.8623, 23.7044, 23.5841, 22.9936, 21.5793, 20.4413, 19.842, 17.6293, 14.4173, 12.4406, 11.4519];
+
+comp4 = mean(Qwo(1:5)-Qboth4(1:5));
 
 figure(1)
 loglog(Laser, BERwo, Laser, BERw, Laser(end-2:end), BERboth)
@@ -46,10 +48,12 @@ legend('Only PhaseComp', 'Only my algorithm', 'Both')
 legend('Location', 'best')
 
 figure(2)
-semilogx(Laser, Qwo, Laser, Qw, Laser, Qboth)
+%semilogx(Laser, Qwo, Laser, Qw, Laser, Qboth4, Laser, Q4_L1)
+semilogx(Laser, Qwo, Laser, Qboth4)
+hold on
 title('Q^2 - 4-QAM, 40dB OSNR')
-legend('Only PhaseComp', 'Only my algorithm', 'Both')
-legend('Location', 'best')
+%legend('Only PhaseComp', 'Only my algorithm', 'Both', 'Lorentzian 1')
+%legend('Location', 'best')
 
 %% 16-QAM 
 % Results from orginal phase comp only
@@ -62,7 +66,9 @@ Qw = [2.3902, 2.3912, 2.3875, 2.3914, 2.3854, 2.3852, 2.388, 2.391, 2.3797, 2.35
 
 % Results from using both algorithms
 BERboth = [0, 0, 0, 0, 1.7611e-05, 0, 5.8705e-06, 2.9352e-05, 8.2187e-05, 0.00037571, 0.00061053, 0.003446, 0.018398, 0.03443, 0.043706];
-Qboth = [22.1024, 22.0659, 22.0258, 21.9706, 21.861, 21.6876, 21.5927, 21.2437, 20.1524, 19.2386, 18.8309, 17.0311, 13.9157, 12.1114, 11.2764];
+Qboth16 = [22.1024, 22.0659, 22.0258, 21.9706, 21.861, 21.6876, 21.5927, 21.2437, 20.1524, 19.2386, 18.8309, 17.0311, 13.9157, 12.1114, 11.2764];
+
+comp16 = mean(Qwo(1:5)-Qboth16(1:5));
 
 figure(3)
 loglog(Laser, BERwo, Laser, BERw, Laser, BERboth)
@@ -70,12 +76,13 @@ title('BER - 16-QAM, 40dB OSNR')
 legend('Only PhaseComp', 'Only my algorithm', 'Both')
 legend('Location', 'best')
 
-figure(4)
-semilogx(Laser, Qwo, Laser, Qw, Laser, Qboth)
+figure(2)
+%semilogx(Laser, Qwo, Laser, Qw, Laser, Qboth16)
+semilogx(Laser, Qwo, Laser, Qboth16)
 title('Q^2 - 16-QAM, 40dB OSNR')
-legend('Only PhaseComp', 'Only my algorithm', 'Both')
-legend('Location', 'west')
-xlabel("Linewidth (Hz)")
+%legend('Only PhaseComp', 'Only my algorithm', 'Both', 'Lorentzian 1','16 Only PhaseComp', '16 Only my algorithm', '16 Both')
+%legend('Location', 'west')
+xlabel('Linewidth (Hz)')
 ylabel("Q^2 (dB)")
 
 %% 64-QAM 
@@ -89,16 +96,44 @@ Qw = [2.3835, 2.3874, 2.3813, 2.3845, 2.3847, 2.3815, 2.3775, 2.3758, 2.3692, 2.
 
 % Results from using both algorithms
 BERboth = [0.0034714, 0.0033383, 0.0036162, 0.0037454, 0.0040389, 0.0046807, 0.004802, 0.0064223, 0.01171, 0.01695, 0.020641, 0.035689, 0.069988, 0.096225, 0.11071];
-Qboth = [21.4713, 21.4841, 21.4391, 21.4067, 21.2906, 21.1429, 21.0989, 20.7229, 19.8184, 19.0245, 18.5451, 16.9087, 13.8657, 12.084, 11.1393];
-    
+Qboth64 = [21.4713, 21.4841, 21.4391, 21.4067, 21.2906, 21.1429, 21.0989, 20.7229, 19.8184, 19.0245, 18.5451, 16.9087, 13.8657, 12.084, 11.1393];
+
+comp64 = mean(Qwo(1:5)-Qboth64(1:5));
+comp = mean([comp4 comp16 comp64]);
+minimum = mean([Qboth4(end) Qboth16(end) Qboth64(end)]);
+%minimum = mean([Qwo4(end) Qwo16(end) Qwo64(end)])
+
 figure(5)
 loglog(Laser, BERwo, Laser, BERw, Laser, BERboth)
 title('BER - 64-QAM, 40dB OSNR')
 legend('Only PhaseComp', 'Only my algorithm', 'Both')
 legend('Location', 'best')
 
-figure(6)
-semilogx(Laser, Qwo, Laser, Qw, Laser, Qboth)
-title('Q^2 - 64-QAM, 40dB OSNR')
-legend('Only PhaseComp', 'Only my algorithm', 'Both')
+figure(2)
+%semilogx(Laser, Qwo, Laser, Qw, Laser, Qboth64)
+semilogx(Laser, Qwo, Laser, Qboth64)
+title('Q^2 - 40dB OSNR')
+%legend('Only PhaseComp', 'Only my algorithm', 'Both', 'Lorentzian 1','16 Only PhaseComp', '16 Only my algorithm', '16 Both','64 Only PhaseComp', '64 Only my algorithm', '64 Both')
+legend('Only PhaseComp','Both','16 Only PhaseComp', '16 Both','64 Only PhaseComp','64 Both')
+legend('Location', 'best')
+
+%% GMI Graphs
+% Graph showing GMI for x and y polarisations across the QAM levels,
+% results from phase_comp+brick-wall filters
+GMIx4 = [4.9944e-05, 4.7443e-05, 4.8369e-05, 5.2934e-05, 4.6212e-05, 4.6874e-05, 4.8258e-05, 5.5322e-05, 5.7799e-05, 5.1994e-05, 5.8105e-05, 5.7577e-05, 2.7067e-05, 6.4095e-05, 4.4075e-05];
+GMIy4 = [6.7605e-06, 7.8767e-06, 6.6666e-06, 8.3167e-06, 6.4001e-06, 7.4408e-06, 7.0187e-06, 5.5337e-06, 8.5174e-06, 6.8576e-06, 2.1124e-05, 1.0275e-05, 1.5658e-06, 1.8133e-09, 2.1558e-06];
+
+GMIx16 = [-8.6231e-07, -9.9958e-07, -8.3358e-07, -1.0535e-06, -1.0971e-06, -1.2864e-06, -1.069e-06, -1.0741e-06, -1.6037e-06, -1.9038e-06, -1.1375e-06, -3.6781e-07, 1.4549e-06, -5.3411e-07, -3.3909e-06];
+GMIy16 = [3.0536e-05, 3.0865e-05, 3.0136e-05, 3.3439e-05, 2.8999e-05, 2.5213e-05, 3.4936e-05, 3.0517e-05, 3.1622e-05, 5.4862e-05, 3.9887e-05, 6.2385e-05, 4.9966e-05, 3.1567e-05, 1.615e-05];
+
+GMIx64 = [3.8043e-05, 4.1216e-05, 3.7448e-05, 3.9297e-05, 3.8326e-05, 4.6422e-05, 3.0453e-05, 3.0651e-05, 3.6271e-05, 2.723e-05, 3.0051e-05, 2.4648e-05, 1.0284e-05, 1.143e-05, 1.276e-05];
+GMIy64 = [1.3832e-05, 1.4947e-05, 1.4775e-05, 1.3934e-05, 1.7813e-05, 1.1173e-05, 1.2159e-05, 8.0789e-06, 1.5728e-05, 1.5323e-05, 6.8778e-06, 1.866e-05, 1.2071e-05, 3.7852e-05, -9.2455e-07];
+
+% Results from first try lorentzian
+GMIx4_L1 = [2.913e-05, 2.799e-05, 2.8358e-05, 3.3763e-05, 3.0957e-05, 2.6876e-05, 2.5549e-05, 3.5646e-05, 3.7191e-05, 1.5983e-05, 5.2868e-06, 2.823e-05, 3.4058e-05, 9.0521e-07, 4.0984e-05];
+GMIy4_L1 = [3.1298e-06, 3.5385e-06, 3.2615e-06, 3.3731e-06, 5.5146e-06, 6.2295e-06, 1.7256e-06, 4.062e-06, 1.734e-07, 7.2821e-06, 2.257e-05, 5.682e-06, 1.1378e-05, 4.5381e-06, 1.332e-08];
+
+figure(7)
+semilogx(Laser, GMIx4, Laser, GMIy4, Laser, GMIx16, Laser, GMIy16, Laser, GMIx64, Laser, GMIy64, Laser, GMIx4_L1, Laser, GMIy4_L1)
+legend('GMIx 4-QAM', 'GMIy 4-QAM', 'GMIx 16-QAM', 'GMIy 16-QAM', 'GMIx 64-QAM', 'GMIy 64-QAM', 'GMIx 4L', 'GMIy 4L')
 legend('Location', 'best')
