@@ -137,12 +137,28 @@ Q16_PC = [24.5425, 22.7668, 12.8949, -2.9855, -2.9992, -2.3466, -3.002];
 BER64_PC = [0.00032875, 0.0020742, 0.45843, 0.49875, 0.49984, 0.27803, 0.4978];
 Q64_PC = [23.464, 22.0544, -2.9313, -2.9964, -3.0345, 3.1894, -3.0013];
 
-% subband gap = 2GHz instead of 1GHz - VERY similar (BER =/= 0) for 16/64 QAM
+% subband gap = 2GHz instead of 1GHz - VERY similar (just BER =/= 0) for 16/64 QAM
 BER4_L2 = [1.1741e-05, 0.00016437, 0.00084535];
 Q4_L2 = [22.2704, 22.2745, 22.241, 22.1965, 22.0662, 21.9745, 21.8941, 21.5408, 20.6566, 19.8223, 19.3903, 17.711, 15.0053, 13.2547, 12.3784];
 
 BER4_BW2 = [0.0047199, 0.023552, 0.038076];
 Q4_BW2 = [27.1648, 27.0884, 26.8513, 26.602, 25.9102, 25.4894, 25.048, 22.4994, 19.1774, 17.4648, 16.5513, 13.9969, 10.3616, 8.1783, 7.303];
+
+% subband gap = 2GHz and lorentzian = 0 outside this gap, HWHM = 0.5
+BER4_L20 = [1.1741e-05, 0.00032875, 0.00075142];
+Q4_L20 = [23.7932, 23.7748, 23.73, 23.7003, 23.516, 23.3633, 23.2601, 22.7862, 21.5936, 20.7061, 20.1385, 18.1481, 15.189, 13.1989, 12.4125];
+
+% subband gap = 1GHz and lorentzian =0 outside this gap, HWHM = 0.5
+BER4_L10 = [0.00014089, 0.00059879, 0.0020077];
+Q4_L10 = [24.5998, 24.5869, 24.4743, 24.449, 24.23, 23.9698, 23.8606, 23.1232, 21.8405, 20.8528, 20.1396, 17.9851, 14.6213, 12.7117, 11.946];
+
+% subband gap = 2GHz, lorentzian = 0 outside, HWHM = 1 (0.5*gap)
+BER4_L201 = [0, 0, 0, 0, 1.1741e-05, 0, 0, 1.1741e-05, 1.1741e-05, 2.3482e-05, 0, 3.5223e-05, 0.00029352, 0.00096276, 0.001949];
+Q4_L201 = [15.5621, 15.5691, 15.5521, 15.5465, 15.5334, 15.52, 15.4912, 15.4331, 15.3087, 15.1021, 14.9875, 14.5062, 13.3098, 12.2991, 11.7638];
+
+% subband gap = 1GHz, lorentzian = 0 outside, HWHM = 0.25
+BER4_L025 = [0.00015263, 0.0035223, 0.0057531];
+Q4_L025 = [26.9872, 26.9644, 26.7714, 26.5611, 25.9532, 25.5435, 25.2329, 23.8795, 21.1565, 19.7396, 19.0061, 16.3941, 12.9378, 10.8355, 10.1677];
 
 % figure(7)
 % loglog(LaserSub, BER4_L, LaserSub, BER16_L, LaserSub, BER64_L, LaserSub, BER4_BW, LaserSub, BER16_BW, LaserSub, BER64_BW, LaserSub, BER4_PC, LaserSub, BER16_PC, LaserSub, BER64_PC)
@@ -159,8 +175,16 @@ xlabel('Linewidth (Hz)')
 ylabel('Q^2')
 
 figure(9)
-semilogx(LaserSub, Q4_L, LaserSub, Q4_BW, LaserSub, Q4_PC, Laser, Q4_L2, Laser, Q4_BW2)
-legend('Lorentzian', 'Brick Wall', 'Phasecomp', 'Lorentzian 2GHz Gap', 'Brick Wall 2GHz Gap')
+semilogx(LaserSub, Q4_L, LaserSub, Q4_BW, LaserSub, Q4_PC, Laser, Q4_L2, Laser, Q4_BW2, Laser, Q4_L20, Laser, Q4_L10)
+legend('Lorentzian', 'Brick Wall', 'Phasecomp', 'Lorentzian 2GHz Gap', 'Brick Wall 2GHz Gap', 'Lorentzian=0 outside 2GHz gap', 'Lorentzian=0 outside 1GHz gap')
+legend('location', 'southwest')
+xlabel('Linewidth (Hz)')
+ylabel('Q^2')
+title('4 QAM')
+
+figure(10)
+semilogx(LaserSub, Q4_L, Laser, Q4_L2, Laser, Q4_L20, Laser, Q4_L10, Laser, Q4_L201, Laser, Q4_L025)
+legend('Lorentzian 1GHz Gap', 'Lorentzian 2GHz Gap', 'Lorentzian=0 outside 2GHz gap HWHM=0.5', 'Lorentzian=0 outside 1GHz gap HWHM=0.5', 'Lorentzian=0 outside 2GHz gap HWHM=1', 'Lorentzian=0 ouside 1GHz gap HWHM=0.25')
 legend('location', 'southwest')
 xlabel('Linewidth (Hz)')
 ylabel('Q^2')
