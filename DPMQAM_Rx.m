@@ -62,7 +62,7 @@ if choose_Phase_Rec == 1
 end
 
 % Lorentzian Filter
-y = 0.25;           % HWHM
+y = 1;           % HWHM
 x0 = 0;             % Centre
 I = 1;              % Gain
 
@@ -73,7 +73,7 @@ mu = 1e-4;          % error step size (<<1)
 %% Initialise Signals
 for M = 4%[4,16,64] % M-QAM Level
     fprintf("\nM = %d\n",M)
-    %for tone_fact = [0.01, 0.1, 0.2, 1/sqrt(10), 0.4, 0.5, 0.7, 1]%, 2, sqrt(10)]
+    for tone_fact = [0.01, 0.1, 0.2, 1/sqrt(10), 0.4, 0.5, 0.7, 1]%, 2, sqrt(10)]
         % Generate signals
         % Generates a set of data files, which could uploaded to the AWG
         Gen_PM_MQAM_RRCshaped_2band_centre(M, Baud, DAC_rate, Beta, Att_stop, gap, sep_fact, DC_fact, tone_fact);
@@ -101,7 +101,7 @@ for M = 4%[4,16,64] % M-QAM Level
         sc_sels = 1:Nsc;
         
         % Simulations are repeated over a range of linewidths to observe effect. Linewidth is a signal impairment.
-        for linewidth = [1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7, 8e7, 1e8]
+        for linewidth = [1e3, 1e5, 1e6, 1e8] %[1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7, 8e7, 1e8]
             fprintf("Laser linewidth: %d Hz\n", linewidth)
             for distance = 0%[1, 5, 10, 50, 70, 90, 95, 100, 500, 1000, 5000]
                 %fprintf("%d km\n",distance)
@@ -460,6 +460,6 @@ for M = 4%[4,16,64] % M-QAM Level
                 clear pix piy; % need to clear these to run the loops without error
             end
         end
-    %end % for linewidth
+    end % for linewidth
 end % for M = [4,16,64]
 toc

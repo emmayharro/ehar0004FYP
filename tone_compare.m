@@ -104,9 +104,54 @@ plot(subTone, [10.3653, 11.6748, 12.2395, 12.0611, 11.923, 11.5436, 10.4361, 8.6
 hold off
 xlabel('tone factor')
 ylabel('Q^2')
-title('4-QAM')
+title('4-QAM Lorentzian 1GHz gap HWHM=0.5')
 legend('1e3 Hz', '1e5 Hz', '1e6 Hz', '1e7 Hz', '1e8 Hz')
 
+figure
+hold on
+plot(subTone, [26.5921, 26.9205, 26.3966, 23.5779, 20.959, 18.8358, 15.0248, 11.3395])
+plot(subTone, [26.3731, 26.6918, 26.1874, 23.4825, 20.9071, 18.7777, 15.0021, 11.33])
+plot(subTone, [24.8119, 25.0682, 24.7097, 22.6331, 20.4075, 18.4783, 14.8619, 11.261])
+plot(subTone, [9.7328, 10.1364, 10.2642, 9.9687, 9.5973, 9.6334, 8.7643, 7.4288])
+hold off
+xlabel('tone factor')
+ylabel('Q^2')
+title('4-QAM Lorentzian 1GHz gap HWHM=0.25')
+legend('1e3 Hz', '1e5 Hz', '1e6 Hz', '1e8 Hz')
 
 
+figure
+hold on
+plot(subTone, [17.2666, 21.342, 22.787, 22.2336, 20.596, 18.3975, 14.7769, 11.3003])
+plot(subTone, [17.2425, 21.3095, 22.768, 22.2096, 20.5794, 18.381, 14.7649, 11.2954])
+plot(subTone, [17.0444, 21.016, 22.4072, 21.9229, 20.384, 18.2583, 14.7033, 11.2677])
+plot(subTone, [9.2408, 12.0925, 13.0047, 13.0865, 12.839, 12.2611, 10.9694, 9.0628])
+hold off
+xlabel('tone factor')
+ylabel('Q^2')
+title('4-QAM Lorentzian 1GHz gap HWHM=0.75')
+legend('1e3 Hz', '1e5 Hz', '1e6 Hz', '1e8 Hz')
 
+figure
+hold on
+plot(subTone, [14.8631, 19.2412, 21.1576, 21.3897, 20.2239, 18.1815, 14.7286, 11.209])
+plot(subTone, [14.8334, 19.2048, 21.1539, 21.3934, 20.2078, 18.1711, 14.72, 11.2007])
+plot(subTone, [14.756, 19.0309, 20.8956, 21.1567, 20.0484, 18.0698, 14.6708, 11.1762])
+plot(subTone, [8.3066, 11.7534, 12.7973, 13.2289, 13.0484, 12.5429, 11.1527, 9.2217])
+hold off
+xlabel('tone factor')
+ylabel('Q^2')
+title('4-QAM Lorentzian 1GHz gap HWHM=1')
+legend('1e3 Hz', '1e5 Hz', '1e6 Hz', '1e8 Hz')
+
+figure
+hold on
+title('4-QAM Lorentzian, linewidth 1e3Hz, 1GHz gap')
+plot(subTone, [26.5921, 26.9205, 26.3966, 23.5779, 20.959, 18.8358, 15.0248, 11.3395])
+plot(subTone, [21.4866, 24.1467, 24.82, 22.9578, 21.1902, 18.7205, 14.9199, 11.2481])
+plot(subTone, [17.2666, 21.342, 22.787, 22.2336, 20.596, 18.3975, 14.7769, 11.3003])
+plot(subTone, [14.8631, 19.2412, 21.1576, 21.3897, 20.2239, 18.1815, 14.7286, 11.209])
+hold off
+xlabel('tone factor')
+ylabel('Q^2')
+legend('HWHM=0.25', 'HWHM=0.5', 'HWHM=0.75', 'HWHM=1')

@@ -160,6 +160,9 @@ Q4_L201 = [15.5621, 15.5691, 15.5521, 15.5465, 15.5334, 15.52, 15.4912, 15.4331,
 BER4_L025 = [0.00015263, 0.0035223, 0.0057531];
 Q4_L025 = [26.9872, 26.9644, 26.7714, 26.5611, 25.9532, 25.5435, 25.2329, 23.8795, 21.1565, 19.7396, 19.0061, 16.3941, 12.9378, 10.8355, 10.1677];
 
+BER4_L2025 = [0.0002583, 0.0024186,  0.0045672];
+Q4_L2025 = [27.1169, 27.0807, 26.8845, 26.6783, 26.0604, 25.6033, 25.2711, 23.8468, 21.4521, 19.8022, 19.189, 16.6556, 13.1486, 10.9999, 10.3327];
+
 % figure(7)
 % loglog(LaserSub, BER4_L, LaserSub, BER16_L, LaserSub, BER64_L, LaserSub, BER4_BW, LaserSub, BER16_BW, LaserSub, BER64_BW, LaserSub, BER4_PC, LaserSub, BER16_PC, LaserSub, BER64_PC)
 % legend('4 Lorentzian', '16 Lorentzian', '64 Lorentzian', '4 Brick Wall', '16 Brick Wall','64 Brick Wall', '4 Phasecomp', '16 Phasecomp', '64 Phasecomp')
@@ -183,8 +186,8 @@ ylabel('Q^2')
 title('4 QAM')
 
 figure(10)
-semilogx(LaserSub, Q4_L, Laser, Q4_L2, Laser, Q4_L20, Laser, Q4_L10, Laser, Q4_L201, Laser, Q4_L025)
-legend('Lorentzian 1GHz Gap', 'Lorentzian 2GHz Gap', 'Lorentzian=0 outside 2GHz gap HWHM=0.5', 'Lorentzian=0 outside 1GHz gap HWHM=0.5', 'Lorentzian=0 outside 2GHz gap HWHM=1', 'Lorentzian=0 ouside 1GHz gap HWHM=0.25')
+semilogx(LaserSub, Q4_L, Laser, Q4_L2, Laser, Q4_L20, Laser, Q4_L10, Laser, Q4_L201, Laser, Q4_L025, Laser, Q4_L2025)
+legend('Lorentzian 1GHz Gap', 'Lorentzian 2GHz Gap', 'Lorentzian=0 outside 2GHz gap HWHM=0.5', 'Lorentzian=0 outside 1GHz gap HWHM=0.5', 'Lorentzian=0 outside 2GHz gap HWHM=1', 'Lorentzian=0 ouside 1GHz gap HWHM=0.25', 'Lorentzian=0 ouside 2GHz gap HWHM=0.25')
 legend('location', 'southwest')
 xlabel('Linewidth (Hz)')
 ylabel('Q^2')
