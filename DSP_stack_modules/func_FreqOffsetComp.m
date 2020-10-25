@@ -32,7 +32,7 @@ load('LPF_40_1_8.mat');
 estX = filter(Num,1,estX);     % filter
 estY = filter(Num,1,estY);
 
-% figure(11); plot(real(estX)); hold on; plot(imag(estX),'r'); plot(real(estY), 'g'); plot(imag(estY), 'm'); hold off
+%figure(11); plot(real(estX)); hold on; plot(imag(estX),'r'); plot(real(estY), 'g'); plot(imag(estY), 'm'); hold off
 
 % estX = fftshift(abs(fft(estX)).^2);
 % estY = fftshift(abs(fft(estY)).^2);

@@ -22,8 +22,13 @@
 
 clear all; close all; clc;
 choose_Plot = 0;            % Set to 1 to display figures, set to 2 to also display every constellation
-choose_Phase_Rec = 2;       % Set to 0 to use only Training-based max. liklihood phase recovery, 
-                                % set to 1 to use Brick-wall filters, set to 2 to use Lorentzian filters
+choose_Phase_Rec = 3;       % Set to 0 to use only Training-based max. liklihood phase recovery, 
+                                % set to 1 to use steep Brick-wall filters,
+                                % set to 2 to use slopey Brick-wall filters,
+                                % set to 3 to use raw Lorentzian lineshape filters,
+                                % set to 4 to use Lorentzian filter set to zero outside the gap between subbands
+                                % set to 5 to use Lorentzian filter set to zero below an attenuation of -9dB
+% ADD SWITCH STATEMENT TO PRINT
 tic
 addpath DSP_stack_modules
 
@@ -39,14 +44,14 @@ Beta = 0.025;       % Roll-off factor of RRC shaping filter used
 Att_stop = 25;      % Stop band attenuation of RRC shaping filter [dB]
 gap = 1;            % clear gap between bands [GHz] can increase to 2GHz if want
 sep_fact = 1.05;    % Separation factor (sub-bands are separated by baud*sep_fact)
-DC_fact = 0.01;     % Small DC addition to each sub-band (useful for freq. offset)
-tone_fact = 0.1;    % Tone field amplitude as a fraction of the RMS signal field strength. %%%%%
+DC_fact = 0.02;     % Small DC addition to each sub-band (useful for freq. offset) %%%0.01
+tone_fact = 0.2;    % Tone field amplitude as a fraction of the RMS signal field strength.
 Nsc = 2;            % Number of sub-bands to be generated.
 
 % Impairments
 dc_off = 0.1;       % DC Offset - residual carrier leakage due to limited extinction ratio.
 f_off = 0.045;      % Offset frequency [GHz]
-OSNR = 40;          % Optical Signal-to-Noise Ratio [dB]
+OSNR = 27;          % Optical Signal-to-Noise Ratio [dB]
 %distance = 0;       % Distance over which system is transmitted [km]
 
 % Brick-Wall Filters
@@ -59,21 +64,33 @@ if choose_Phase_Rec == 1
         'PassbandFrequency', 1,'StopbandAttenuation', 80);
     LPF_1 = dsp.LowpassFilter('SampleRate', ADC_rate, 'StopbandFrequency', 1, ...
         'PassbandFrequency', 0.5, 'StopbandAttenuation', 80);
+    
+    if choose_Plot == 1
+        h = fvtool(LPF, LPF_1);
+        legend(h, 'Low Pass Filter for low linewidth', 'Low Pass Filter for high linewidth')
+        h.CurrentAxes.XLim = [0 5];
+    end  
 end
 
+if choose_Phase_Rec == 2
+    wc = gap/50; % aiming for attenuation of -15db at 1GHz
+end 
+
 % Lorentzian Filter
-y = 1;           % HWHM
-x0 = 0;             % Centre
-I = 1;              % Gain
+if choose_Phase_Rec >= 3
+    y = 0.5;            % HWHM
+    x0 = 0;             % Centre
+    I = 1;              % Gain
+end
 
 % Dynamic Equaliser
 FFE_length = 41;    % # of taps in FIR filter [int]
 mu = 1e-4;          % error step size (<<1)
 
 %% Initialise Signals
-for M = 4%[4,16,64] % M-QAM Level
+for M = 64%[4,16,64] % M-QAM Level
     fprintf("\nM = %d\n",M)
-    for tone_fact = [0.01, 0.1, 0.2, 1/sqrt(10), 0.4, 0.5, 0.7, 1]%, 2, sqrt(10)]
+    %for tone_fact = [0.01, 0.1, 0.2, 1/sqrt(10), 0.4, 0.5, 0.7, 1]%, 2, sqrt(10)]
         % Generate signals
         % Generates a set of data files, which could uploaded to the AWG
         Gen_PM_MQAM_RRCshaped_2band_centre(M, Baud, DAC_rate, Beta, Att_stop, gap, sep_fact, DC_fact, tone_fact);
@@ -101,7 +118,7 @@ for M = 4%[4,16,64] % M-QAM Level
         sc_sels = 1:Nsc;
         
         % Simulations are repeated over a range of linewidths to observe effect. Linewidth is a signal impairment.
-        for linewidth = [1e3, 1e5, 1e6, 1e8] %[1e3, 1e4, 1e5, 2e5, 5e5, 8e5, 1e6, 2e6, 5e6, 8e6, 1e7, 2e7, 5e7, 8e7, 1e8]
+        for linewidth = [1e3, 1e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 5e7, 1e8]
             fprintf("Laser linewidth: %d Hz\n", linewidth)
             for distance = 0%[1, 5, 10, 50, 70, 90, 95, 100, 500, 1000, 5000]
                 %fprintf("%d km\n",distance)
@@ -141,7 +158,7 @@ for M = 4%[4,16,64] % M-QAM Level
                     % Retrieve sent data
                     dataX = DataX(sc_sel,:);
                     dataY = DataY(sc_sel,:);
-                    
+
                     %% Add Impariments
                     % Signals generated in software should be perfect, so
                     % impairments need to be added to simulate effects that occur
@@ -184,12 +201,18 @@ for M = 4%[4,16,64] % M-QAM Level
                     end
                     
                     %% Lorentzian
-                    if choose_Phase_Rec == 2
+                    if choose_Phase_Rec >= 3
                         % Create Lorentzian shape
-                        F = linspace(-100, 100, length(Ex));
+                        F = linspace(-ADC_rate/2, ADC_rate/2, length(Ex));
                         A = I * (y^2 ./ ((F - x0).^2 + y^2));
-                        A(F > gap | F < -gap) = 0;
+                        if choose_Phase_Rec == 4
+                            A(F > gap | F < -gap) = 0;
+                        elseif choose_Phase_Rec == 5
+                            A(A < 10^(-9/10)) = 0; %-9dB
+                        end
+                        %semilogx(F,A)
                         HP = I-A;
+                        %plot(F,HP)
                         
                         % Apply Lorentzian shape filter to data in
                         % frequency domain
@@ -203,16 +226,6 @@ for M = 4%[4,16,64] % M-QAM Level
                         Ex_HP = ifft(ifftshift(HPFx));
                         Ey_HP = ifft(ifftshift(HPFy));
                         
-                        if (ii == 1 && choose_Plot == 1)
-                            figure(50)
-                            hold on
-                            plot(f,20*log10(abs(fftshift(fft(Ex_LP)))))
-                            plot(f,20*log10(abs(fftshift(fft(Ex_HP)))))
-                            legend('Low-pass', 'High-pass')
-                            xlabel("Frequency (GHz)")
-                            ylabel("Power (dB)")
-                            hold off
-                        end
                     end
                     %% Removing phase noise with brick-wall filters
                     % Employ filter to remove the central optical tone centred at 0
@@ -221,7 +234,7 @@ for M = 4%[4,16,64] % M-QAM Level
                     % After viewing graphs, it can be seen that the signal quality
                     % deteriorates at 2e6Hz, so trying to add extra
                     % compensation/recovery only where needed
-                    if choose_Phase_Rec == 1
+                     if choose_Phase_Rec == 1
                         if (linewidth < 2e6)
                             Ex_LP = LPF(Ex); %stored as complex a+ib
                             Ey_LP = LPF(Ey);
@@ -231,33 +244,63 @@ for M = 4%[4,16,64] % M-QAM Level
                         end
                         
                         if (linewidth < 2e6)
-                            Ex = HPF(Ex);
-                            Ey = HPF(Ey);
+                            Ex_HP = HPF(Ex);
+                            Ey_HP = HPF(Ey);
                         else
-                            Ex = HPF_1(Ex);
-                            Ey = HPF_1(Ey);
+                            Ex_HP = HPF_1(Ex);
+                            Ey_HP = HPF_1(Ey);
                         end
-                    end
+                     end
                     
+                    if choose_Phase_Rec == 2
+                        F = linspace(-ADC_rate/2, ADC_rate/2, length(Ex));
+                        LP = 1./(1+1i*F./(wc*2*pi));
+                        HP = 1-LP;
+                        %semilogx(F,mag2db(LP), 1, -15, 'o', 0.1,-3, 'o')
+                        
+                        LPFx = fftshift(fft(Ex)).*LP';
+                        LPFy = fftshift(fft(Ey)).*LP';
+                        Ex_LP = ifft(ifftshift(LPFx));
+                        Ey_LP = ifft(ifftshift(LPFy));
+                        
+                        HPFx = fftshift(fft(Ex)).*HP';
+                        HPFy = fftshift(fft(Ey)).*HP';
+                        Ex_HP = ifft(ifftshift(HPFx));
+                        Ey_HP = ifft(ifftshift(HPFy));
+                    end
+
                     if choose_Phase_Rec > 0
-                        % In theory: ExLP = Eideal * exp(1i*phase(t))
-                        [phase_X, ~] = cart2pol(real(Ex_LP), imag(Ex_LP));
-                        [phase_Y, ~] = cart2pol(real(Ey_LP), imag(Ey_LP));
-                        
-                        [phase_xHP, ideal_xHP] = cart2pol(real(Ex), imag(Ex));
-                        [phase_yHP, ideal_yHP] = cart2pol(real(Ey), imag(Ey));
-                        
-                        % process ExLP/EyLP
-                        phase_Ex = phase_xHP-phase_X;
-                        [A,B] = pol2cart(phase_Ex, ideal_xHP);
-                        Ex = complex(A,B);
-                        
-                        phase_Ey = phase_yHP-phase_Y;
-                        [C,D] = pol2cart(phase_Ey, ideal_yHP);
-                        Ey = complex(C,D);
-                        
                         if (ii == 1 && choose_Plot == 1)
                             figure(50)
+                            hold on
+                            plot(f,20*log10(abs(fftshift(fft(Ex_LP)))))
+                            %plot(f,20*log10(abs(fftshift(fft(Ex_HP)))))
+                            legend('Low-pass', 'High-pass')
+                            xlabel("Frequency (GHz)")
+                            ylabel("Power (dB)")
+                            hold off
+                        end
+%                         In theory: ExLP = Eideal * exp(1i*phase(t))
+%                         [phase_X, ~] = cart2pol(real(Ex_LP), imag(Ex_LP));
+%                         [phase_Y, ~] = cart2pol(real(Ey_LP), imag(Ey_LP));
+%                         
+%                         [phase_xHP, ideal_xHP] = cart2pol(real(Ex_HP), imag(Ex_HP));
+%                         [phase_yHP, ideal_yHP] = cart2pol(real(Ey_HP), imag(Ey_HP));
+%                         
+%                         % process ExLP/EyLP
+%                         phase_Ex = phase_xHP-phase_X;
+%                         [A,B] = pol2cart(phase_Ex, ideal_xHP);
+%                         Ex = complex(A,B);
+%                         phase_Ey = phase_yHP-phase_Y;
+%                         [C,D] = pol2cart(phase_Ey, ideal_yHP);
+%                         Ey = complex(C,D);
+                        
+                        Ex = Ex_HP.*exp(-1i*angle(Ex_LP));
+                        Ey = Ey_HP.*exp(-1i*angle(Ey_LP));
+                        
+                        
+                        if (ii == 1 && choose_Plot == 1)
+                            figure(60)
                             hold on
                             plot(f,20*log10(abs(fftshift(fft(Ex)))))
                             xlabel("Frequency (GHz)")
@@ -430,15 +473,18 @@ for M = 4%[4,16,64] % M-QAM Level
                     % disp(['BER, y-pol: ' num2str(BERy)])
                     % disp(['Q^2, x-pol: ' num2str(Qx) ' dB'])
                     % disp(['Q^2, y-pol: ' num2str(Qy) ' dB'])
-                    
-                    %GMIx=calcGMI_withNormalization(dataX(1:length(Ex)),Ex,'gray');
-                    %GMIy=calcGMI_withNormalization(dataY(1:length(Ey)),Ey,'gray');
+                    if M == 64
+                        GMIx=calcGMI_withNormalization(pix(1:length(Ex)),Ex,'gray');
+                        GMIy=calcGMI_withNormalization(piy(1:length(Ey)),Ey,'gray');
+                    end
                     
                     if (ii == 1)
                         disp(['BER, mean: ' num2str((BER_x+BER_y)/2)])
                         disp(['Q^2, mean: ' num2str(1/((1/Q_x+1/Q_y)/2))])
-                        %disp(['GMIx: ' num2str(GMIx) ' GMIy:'  num2str(GMIy)])
                         
+                        if M == 64
+                            disp(['GMIx:' num2str(GMIx) ' GMIy:'  num2str(GMIy)])
+                        end
                         % and here is the final processed constellation.
                         if (choose_Plot > 0)
                             figure(70+ii)
@@ -460,6 +506,6 @@ for M = 4%[4,16,64] % M-QAM Level
                 clear pix piy; % need to clear these to run the loops without error
             end
         end
-    end % for linewidth
+    %end % for linewidth
 end % for M = [4,16,64]
 toc
